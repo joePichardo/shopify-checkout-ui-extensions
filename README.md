@@ -77,6 +77,11 @@ Open the URL generated in your console. Once you grant permission to the app, yo
 - [Extension only apps](https://shopify.dev/docs/apps/build/app-extensions/build-extension-only-app)
 - [Shopify CLI](https://shopify.dev/docs/apps/tools/cli)
 
-## Store
-Shopify Store: https://admin.shopify.com/store/pivot-checkout-ui-extensions
-Store Password: pivot
+## shipping-delay-message extension
+- Enable extension by first installing the application.
+- Then go to the Checkout Customizer (Settings -> Checkout -> Customize)
+  - Here you'll add the extension through the "Apps" left sidebar menu icon link
+  - Find the app extension with the correct name
+  - Click the add icon and select Checkout
+  - Products with metafield "Shipping Delay Message" text will show up now
+    - Metafield namespace "shipping" and key "delay_message" 
