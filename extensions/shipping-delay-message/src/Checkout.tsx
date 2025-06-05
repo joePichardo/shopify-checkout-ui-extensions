@@ -1,59 +1,38 @@
 import {
   reactExtension,
-  Banner,
-  BlockStack,
-  Checkbox,
   Text,
-  useApi,
-  useApplyAttributeChange,
-  useInstructions,
-  useTranslate,
-} from "@shopify/ui-extensions-react/checkout";
+  useCartLineTarget,
+  useAppMetafields,
+} from '@shopify/ui-extensions-react/checkout';
 
-// 1. Choose an extension target
-export default reactExtension("purchase.checkout.block.render", () => (
-  <Extension />
-));
+export default reactExtension(
+  'purchase.checkout.cart-line-item.render-after',
+  () => <ShippingDelayMessage />,
+);
 
-function Extension() {
-  const translate = useTranslate();
-  const { extension } = useApi();
-  const instructions = useInstructions();
-  const applyAttributeChange = useApplyAttributeChange();
+function ShippingDelayMessage() {
+  const {
+    merchandise: {
+      product: {
+        id: gid
+      }
+    }
+  } = useCartLineTarget();
 
+  const id = gid.split('/').pop()!;
 
-  // 2. Check instructions for feature availability, see https://shopify.dev/docs/api/checkout-ui-extensions/apis/cart-instructions for details
-  if (!instructions.attributes.canUpdateAttributes) {
-    // For checkouts such as draft order invoices, cart attributes may not be allowed
-    // Consider rendering a fallback UI or nothing at all, if the feature is unavailable
-    return (
-      <Banner title="shipping-delay-message" status="warning">
-        {translate("attributeChangesAreNotSupported")}
-      </Banner>
-    );
-  }
+  const [delayMessage] = useAppMetafields({
+    id,
+    namespace: 'shipping',
+    key: 'delay_message',
+    type: 'product',
+  });
 
-  // 3. Render a UI
+  if (!delayMessage) return null;
+
   return (
-    <BlockStack border={"dotted"} padding={"tight"}>
-      <Banner title="shipping-delay-message">
-        {translate("welcome", {
-          target: <Text emphasis="italic">{extension.target}</Text>,
-        })}
-      </Banner>
-      <Checkbox onChange={onCheckboxChange}>
-        {translate("iWouldLikeAFreeGiftWithMyOrder")}
-      </Checkbox>
-    </BlockStack>
+    <Text size="small" appearance="subdued">
+      {delayMessage.metafield.value}
+    </Text>
   );
-
-  async function onCheckboxChange(isChecked) {
-    // 4. Call the API to modify checkout
-    const result = await applyAttributeChange({
-      key: "requestedFreeGift",
-      type: "updateAttribute",
-      value: isChecked ? "yes" : "no",
-    });
-    console.log("applyAttributeChange result", result);
-  }
 }
